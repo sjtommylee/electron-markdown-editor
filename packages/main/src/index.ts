@@ -1,7 +1,6 @@
-import {app, BrowserWindow, shell} from 'electron';
-import {join} from 'path';
-import {URL} from 'url';
-
+import { app, BrowserWindow, shell } from 'electron';
+import { join } from 'path';
+import { URL } from 'url';
 
 const isSingleInstance = app.requestSingleInstanceLock();
 
@@ -14,13 +13,16 @@ app.disableHardwareAcceleration();
 
 // Install "Vue.js devtools"
 if (import.meta.env.MODE === 'development') {
-  app.whenReady()
+  app
+    .whenReady()
     .then(() => import('electron-devtools-installer'))
-    .then(({default: installExtension, VUEJS3_DEVTOOLS}) => installExtension(VUEJS3_DEVTOOLS, {
-      loadExtensionOptions: {
-        allowFileAccess: true,
-      },
-    }))
+    .then(({ default: installExtension, VUEJS3_DEVTOOLS }) =>
+      installExtension(VUEJS3_DEVTOOLS, {
+        loadExtensionOptions: {
+          allowFileAccess: true,
+        },
+      }),
+    )
     .catch(e => console.error('Failed install extension:', e));
 }
 
@@ -29,7 +31,10 @@ let mainWindow: BrowserWindow | null = null;
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
     show: false, // Use 'ready-to-show' event to show window
+    vibrancy: 'under-window',
+    visualEffectState: 'active',
     webPreferences: {
+      // preload:
       nativeWindowOpen: true,
       preload: join(__dirname, '../../preload/dist/index.cjs'),
     },
@@ -54,7 +59,7 @@ const createWindow = async () => {
    *
    * @see https://stackoverflow.com/a/67409223
    */
-   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: 'deny' };
   });
@@ -64,14 +69,13 @@ const createWindow = async () => {
    * Vite dev server for development.
    * `file://../renderer/index.html` for production and test
    */
-  const pageUrl = import.meta.env.MODE === 'development' && import.meta.env.VITE_DEV_SERVER_URL !== undefined
-    ? import.meta.env.VITE_DEV_SERVER_URL
-    : new URL('../renderer/dist/index.html', 'file://' + __dirname).toString();
-
+  const pageUrl =
+    import.meta.env.MODE === 'development' && import.meta.env.VITE_DEV_SERVER_URL !== undefined
+      ? import.meta.env.VITE_DEV_SERVER_URL
+      : new URL('../renderer/dist/index.html', 'file://' + __dirname).toString();
 
   await mainWindow.loadURL(pageUrl);
 };
-
 
 app.on('second-instance', () => {
   // Someone tried to run a second instance, we should focus our window.
@@ -81,24 +85,22 @@ app.on('second-instance', () => {
   }
 });
 
-
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-
-app.whenReady()
+app
+  .whenReady()
   .then(createWindow)
-  .catch((e) => console.error('Failed create window:', e));
-
+  .catch(e => console.error('Failed create window:', e));
 
 // Auto-updates
 if (import.meta.env.PROD) {
-  app.whenReady()
+  app
+    .whenReady()
     .then(() => import('electron-updater'))
-    .then(({autoUpdater}) => autoUpdater.checkForUpdatesAndNotify())
-    .catch((e) => console.error('Failed check updates:', e));
+    .then(({ autoUpdater }) => autoUpdater.checkForUpdatesAndNotify())
+    .catch(e => console.error('Failed check updates:', e));
 }
-
