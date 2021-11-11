@@ -1,6 +1,7 @@
 {
-  "name": "vite-electron-builder",
+  "name": "vite-electron-markdown-editor",
   "private": true,
+  "description": "markdown editor with vite, electron, react",
   "engines": {
     "node": ">=v16.13",
     "npm": ">=8.1"
